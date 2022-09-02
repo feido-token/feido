@@ -1,0 +1,74 @@
+syntax = "proto3";
+package de.cispa.feido;
+
+// FidoRegister request
+message PublicKeyCredentialRpEntity{
+  string id = 1;
+}
+
+message PublicKeyCredentialUserEntity{
+  bytes id = 1;
+  string displayName = 2;
+}
+
+message PublicKeyCredentialParameters{
+  string type = 1;
+  int32 alg = 2;
+}
+
+message PublicKeyCredentialCreationOptions{
+  string origin = 1;
+  bytes challenge = 2;
+  PublicKeyCredentialRpEntity rp = 3;
+  PublicKeyCredentialUserEntity user = 4;
+  PublicKeyCredentialParameters pubKeyCredParams = 5;
+}
+
+// FidoLogin request
+message PublicKeyCredentialRequestOptions{
+  string origin = 1;
+  string rpId = 2;
+  bytes challenge = 3;
+}
+
+// FidoLogin AND FidoRegister return
+message AuthenticatorAttestationResponse{
+  bytes clientDataJSON = 1;
+  bytes attestationObject = 2; // authenticator data and attestation statement
+  // TODO are getters automatically created when object is initialized in JS?
+}
+
+message  AuthenticatorAttachment{
+  string type = 1; // "platform" or "cross-platform"
+}
+
+message AuthenticatorAssertionResponse{
+  bytes clientDataJSON = 1;
+  bytes authenticatorData = 2;
+  bytes signature = 3;
+  bytes userHandle = 4; // can be null
+}
+
+message AuthenticatorResponse{
+  oneof responseType {
+    AuthenticatorAttestationResponse authenticatorAttestationResponse = 1;
+    AuthenticatorAssertionResponse authenticatorAssertionResponse = 2;
+  }
+}
+
+message PublicKeyCredential{
+  bytes rawId = 1; //binary
+  AuthenticatorResponse response = 2;
+  AuthenticatorAttachment authenticatorAttachment = 3;
+  // TODO are getters automatically created when object is initialized in JS?
+}
+
+// Wrapper for all above messages
+message FEIDOWrapper{
+  oneof packet {
+    PublicKeyCredentialCreationOptions publicKeyCredentialCreationOptions = 1;
+    PublicKeyCredentialRequestOptions publicKeyCredentialRequestOptions = 2;
+    PublicKeyCredential publicKeyCredential = 3;
+  }
+}
+

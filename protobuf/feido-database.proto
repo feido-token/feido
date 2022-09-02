@@ -1,0 +1,16 @@
+syntax = "proto2";
+
+package feido_db; 
+
+option go_package = "feido-proto/";
+
+message ICheckitQuery {
+    // Note: first 3 elements of data group 1 (but in different order)
+    required bytes travelDocumentNumber = 1; // 9B ("Document number")
+    required bytes countryOfIssuance = 2; // 3B ("Issuing State or organization")
+    required bytes documentType = 3; // 2B ("Document code")
+}
+
+message ICheckitResponse {
+    required bool isDbHit = 1; // true: eID revoked/stolen
+}

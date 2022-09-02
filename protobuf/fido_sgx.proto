@@ -1,0 +1,137 @@
+syntax = "proto2";
+
+package fido_sgx; 
+
+option java_multiple_files = true;
+option java_package = "de.anon.fidosgx.protos";
+option java_outer_classname = "OuterFidoSGX";
+
+/* ---------- FIDO Messages ---------- */
+message KeySpecs {
+    // COSE algorithm ID (:= -7, ES256, ECDSA-SHA256, p256 curve)
+    required int32 alg_id = 1;
+}
+
+message attestedCredentialData {
+    required bytes aaguid = 1; // 16B; arbitrary fixed (e.g., enclave version)
+    required int32 credentialIdLength_be = 2; // uint16_t; BigEndian
+    required bytes credentialId = 3; // resident keys: (>= 16 Bytes), constant
+
+    /* COSE_Key format encoded "using CTAP2 canoncial CBOR encoding form"
+     * cf. https://www.w3.org/TR/webauthn-2/#sctn-attested-credential-data
+     */
+    required bytes credentialPublicKey = 4;
+}
+
+message AuthenticatorData {
+    required bytes rpIdHash = 1; // 32 Bytes, sha-256
+    required int32 flags = 2; // 1 Byte; user presence bit 0 -> 1, if acd included bit 6 ->1
+    required uint32 signCount_be = 3; // 4 Bytes, unsigned, BigEndian (!); we don't support it, so will be constant 0
+    optional attestedCredentialData acd = 4; // present for FidoRegisterReply
+    // (optional extensions = 5;)
+}
+
+// ---------------- FIDO REGISTER --------------
+
+// Client -> Enclave
+message FidoRegister {
+    required string  service_name = 1; // rpID
+    required KeySpecs specs = 2;
+    required bytes cliDataHash = 3; // correct?
+    // optional:  user (for multi account support)
+}
+
+// Enclave -> Client
+message FidoRegisterReply {
+    /* "Return the attestation object as a CBOR map"
+     * includes AD, cliDataHash, depending on attestation type no signature,
+     * a signature with a dedicated attestation priv. key, or a signature with
+     * the credential priv. key
+     */
+    required bytes attestationObject = 1;
+
+    // only for client simplicity at the moment
+    required bytes credentialId = 2;
+}
+
+// ---------------- FIDO LOGIN --------------
+
+// Client -> Enclave
+message FidoLogin {
+    required string  service_name = 1; // rpID
+    required bytes cliDataHash = 2; // includes challenge?
+    required KeySpecs specs = 3;    // := -7 (non-standard, trick to avoid storing algID at enclave)
+}
+
+// Enclave -> Client
+message FidoLoginReply {
+    required AuthenticatorData ad = 1;
+
+    // cf. https://www.w3.org/TR/webauthn-2/#fig-signature
+    required bytes assertionSignature = 2; // private credt. key, over ( AD || cliDataHash ); || := concat
+
+    // only for client simplicity atm
+    required bytes credentialId = 3;
+}
+
+
+// ---------------- FIDO WRAPPERS --------------
+
+// client -> enclave
+message FidoRequest {
+    oneof request {
+        FidoRegister register = 1;
+        FidoLogin login = 2;
+    }
+}
+
+// client <- enclave
+message FidoResponse {
+    oneof response {
+        FidoRegisterReply register = 1;
+        FidoLoginReply login = 2;
+    }
+}
+
+
+/* ---------- CA Messages ---------- */
+
+// eID -> Enclave
+message CAInit {
+    message DataGroup {
+       required  bytes group_data = 1;
+    }
+    required bytes document_security_object = 1; // SOD
+    map<int32, DataGroup> data_groups = 2; // needed: DG1, DG14
+}
+
+// Enclave -> eID
+message CAInitReply {
+    required string ca_cipher_oid_txt = 1;   // cipher for CA channel
+    required int32 epass_key_id = 2;  // tell ePassport to use keypair this ID
+    required bytes ephm_enclave_public_key = 3; // ephm CA public key of enclave
+}
+
+message CAMsg {
+    oneof ca {
+        CAInit request = 1;
+        CAInitReply reply = 2;
+    }
+}
+
+// Enclave -> eID
+message AE_TAChallengeReq {
+    required bytes msg_blob = 1;
+}
+
+// eID -> Enclave
+message AE_TAChallengeResp {
+    required bytes msg_blob = 1;
+}
+
+message AE_TAMsg {
+    oneof ae_ta {
+        AE_TAChallengeReq request = 1;
+        AE_TAChallengeResp reply = 2;
+    }
+}

@@ -1,0 +1,59 @@
+diff --git a/static/dist/js/webauthn.js b/static/dist/js/webauthn.js
+index 6c3f5d6..c67f07f 100644
+--- a/static/dist/js/webauthn.js
++++ b/static/dist/js/webauthn.js
+@@ -74,8 +74,10 @@ function getCredentials() {
+             console.log(response)
+         });
+ }
+-
++let t0 = 0;
+ function makeCredential() {
++    t0 = performance.now();
++
+     hideErrorAlert();
+     console.log("Fetching options for new credential");
+     if ($("#input-email").val() === "") {
+@@ -116,6 +118,8 @@ function makeCredential() {
+                 console.log(newCredential);
+                 state.createResponse = newCredential;
+                 registerNewCredential(newCredential);
++                let t1 = performance.now();
++                console.log("makeCredential elapsed time:" + (t1-t0) + "ms");
+             }).catch(function (err) {
+                 console.info(err);
+             });
+@@ -158,7 +162,9 @@ function addUserErrorMsg(msg) {
+     document.getElementById("user-create-error").innerHTML = msg;
+ }
+ 
++let t2;
+ function getAssertion() {
++    t2 = performance.now();
+     hideErrorAlert();
+     if ($("#input-email").val() === "") {
+         showErrorAlert("Please enter a username");
+@@ -190,6 +196,8 @@ function getAssertion() {
+                         .then(function (credential) {
+                             console.log(credential);
+                             verifyAssertion(credential);
++                            let t3 = performance.now();
++                            console.log("getCredential elapsed time:" + (t3-t2) + "ms");
+                         }).catch(function (err) {
+                             console.log(err.name);
+                             showErrorAlert(err.message);
+@@ -228,10 +236,10 @@ function verifyAssertion(assertedCredential) {
+         }),
+         contentType: "application/json; charset=utf-8",
+         dataType: "json",
+-        success: function (response) {
+-            window.location = "/dashboard"
+-            console.log(response)
+-        }
++        //success: function (response) {
++        //    window.location = "/dashboard"
++        //    console.log(response)
++        //}
+     });
+ }
+ 
