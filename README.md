@@ -83,6 +83,5 @@ instructions of the respective FeIDo subcomponent.
 
 
 ## License
-The FeIDo source code will be openly licensed, but is currently still under restrictive/no license.
-The exact open source license still needs to be determined and might vary across
-the different subcomponents.
+The protobuf files in `protobuf` are licensed according to the subproject using it, i.e., under LGPL-2.1 when used by the browser extension and middleware app and under AGPL-3.0 when used by the credential service and database service.
+Please check the license files of each subproject.
