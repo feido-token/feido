@@ -1,0 +1,12 @@
+[submodule "feido-credential-service"]
+	path = feido-credential-service
+	url = git@github.com:feido-token/feido-credential-service.git
+[submodule "feido-middleware-app"]
+	path = feido-middleware-app
+	url = git@github.com:feido-token/feido-middleware-app.git
+[submodule "feido-browser-extension"]
+	path = feido-browser-extension
+	url = git@github.com:feido-token/feido-browser-extension.git
+[submodule "feido-database-server"]
+	path = feido-database-server
+	url = git@github.com:feido-token/feido-database-server.git
