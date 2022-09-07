@@ -1,6 +1,13 @@
 # FeIDo: Recoverable FIDO2 Tokens Using Electronic IDs
 This is the umbrella repository of the FeIDo research project.
-The corresponding paper has been accepted for CCS 2022 and will be published as part of the proceedings.
+The goal of FeIDo is to provide a virtual FIDO2 authenticator that does not incur extra costs and tackles the problem of account recovery on a token loss.
+FeIDo introduces the concept of attribute-based FIDO2 credentials using eIDs and TEEs.
+The corresponding research paper has been accepted for [CCS 2022](https://www.sigsac.org/ccs/CCS2022/) and will be published as part of the proceedings (probably in Nov 2022).
+
+The author's version of the paper is provided for private use in the CISPA database: https://publications.cispa.saarland/3765/
+
+## Repo Note
+Please clone this repository in order to build all FeIDo subcomponents (instead of cloning subrepos directly), because the subrepos use symbolic links to access the shared protobuf files provided by this umbrella repo.
 
 
 ## Directory structure
@@ -80,6 +87,9 @@ instructions of the respective FeIDo subcomponent.
     Received: "127.0.0.1"
     ```
 
+
+## Limitations
+As described in the research paper, the FeIDo prototype does not yet implement anonymous credentials.
 
 
 ## License
